@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Listing;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Validation\Rule;
+use App\Http\Controllers\Controller;
+use Intervention\Image\Facades\Image;
 
 class ListingController extends Controller
 {
@@ -40,7 +41,10 @@ class ListingController extends Controller
             'description'=>'required'
         ]);
         if($request->hasFile('logo')){
-            $validation['logo']=$request->file('logo')->store('public/images');
+            $imagePath=request('logo')->store('logos','public');
+            $image=Image::make(public_path("storage/{$imagePath}"))->fit(1000,1000);
+            $image->save();
+            $validation['logo']=$imagePath;
         }
         $validation['user_id']=auth()->id();
         Listing::create($validation);
